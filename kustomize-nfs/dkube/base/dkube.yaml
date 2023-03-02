@@ -239,6 +239,11 @@ spec:
         image: dkubeAuthImage
         imagePullPolicy: IfNotPresent
         name: main
+        env:
+        - name: KUBERNETES_POD_NAMESPACE
+          valueFrom:
+           fieldRef:
+             fieldPath: metadata.namespace
         ports:
         - containerPort: 5556
           name: dex-s
