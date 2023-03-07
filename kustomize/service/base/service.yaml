@@ -216,66 +216,6 @@ metadata:
   namespace: dkube
 ---
 apiVersion: v1
-kind: ServiceAccount
-metadata:
-  labels:
-    ksonnet.io/component: service
-  name: dkube-proxy
-  namespace: dkube
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: Role
-metadata:
-  labels:
-    ksonnet.io/component: service
-  name: dkube-proxy
-  namespace: dkube
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - services
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  verbs:
-  - create
-  - update
-  - patch
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  verbs:
-  - get
-  - list
-  - watch
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: RoleBinding
-metadata:
-  labels:
-    ksonnet.io/component: service
-  name: dkube-proxy
-  namespace: dkube
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: dkube-proxy
-subjects:
-- kind: ServiceAccount
-  name: dkube-proxy
-  namespace: dkube
----
-apiVersion: v1
 kind: Service
 metadata:
   labels:
@@ -508,14 +448,14 @@ spec:
       istio: ingressgateway
   configPatches:
   - applyTo: HTTP_FILTER
-    listener:
-      filterChain:
-        filter:
-          name: envoy.http_connection_manager
-          subFilter:
-            name: envoy.router
     match:
       context: GATEWAY
+      listener:
+        filterChain:
+          filter:
+            name: envoy.http_connection_manager
+            subFilter:
+              name: envoy.router
     patch:
       operation: INSERT_BEFORE
       value:
