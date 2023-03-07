@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metadata-grpc-deployment
+spec:
+  template:
+    spec:
+      containers:
+        - name: container
+          # Remove existing environment variables
+          env:
+          - $patch: replace
+          - name: MYSQL_ALLOW_EMPTY_PASSWORD
+            value: "true"
+          - name: DBCONFIG_USER
+            valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: DBCONFIG_USER
+          - name: DBCONFIG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: DBCONFIG_PASSWORD
+          - name: DBCONFIG_HOST
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: DBCONFIG_HOST
+          - name: DBCONFIG_PORT
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: DBCONFIG_PORT
+          envFrom:
+          - configMapRef:
+              name: metadata-grpc-configmap
+          args: ["--grpc_port=$(METADATA_GRPC_SERVICE_PORT)",
+                 "--mysql_config_host=$(DBCONFIG_HOST)",
+                 "--mysql_config_database=metadb",
+                 "--mysql_config_port=$(DBCONFIG_PORT)",
+                 "--mysql_config_user=$(DBCONFIG_USER)",
+                 "--mysql_config_password=$(DBCONFIG_PASSWORD)"]
