@@ -60,6 +60,7 @@ data:
   artifactRepository: |
     archiveLogs: false
   instanceID: modelmonitor
+  containerRuntimeExecutor: emissary
 kind: ConfigMap
 metadata:
   labels:

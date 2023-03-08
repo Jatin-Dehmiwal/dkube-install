@@ -235,8 +235,10 @@ spec:
     spec:
       containers:
       - command:
-        - /opt/dkube/startup
-        image: dkubeAuthImage
+        - dex
+        - serve
+        - /etc/dex/cfg/config.yaml
+        image: dkubeDexImage
         imagePullPolicy: IfNotPresent
         name: main
         env:
@@ -251,6 +253,9 @@ spec:
         securityContext:
           procMount: Default
           runAsUser: 0
+        volumeMounts:
+        - mountPath: /etc/dex/cfg
+          name: config
       - image: dkubeAuthImage
         imagePullPolicy: IfNotPresent
         name: sidecar
@@ -275,6 +280,13 @@ spec:
       serviceAccount: dkube
       serviceAccountName: dkube
       volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: config.yaml
+            path: config.yaml
+          name: dkube-auth-config
+        name: config
       - name: dkube-logs
         nfs:
           path: nfsBasePath/dkube/system/logs/dkube

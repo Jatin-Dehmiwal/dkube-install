@@ -1,5 +1,129 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-bases:
-- github.com/oneconvergence/kubeflow-manifests/dkube?ref=v1.4-branch
+resources:
+# Cert-Manager
+- github.com/kubeflow/manifests/common/cert-manager/cert-manager/base?ref=v1.6-branch
+- github.com/kubeflow/manifests/common/cert-manager/kubeflow-issuer/base?ref=v1.6-branch
+# Istio
+- github.com/kubeflow/manifests/common/istio-1-14/istio-crds/base?ref=v1.6-branch
+- github.com/kubeflow/manifests/common/istio-1-14/istio-namespace/base?ref=v1.6-branch
+- github.com/kubeflow/manifests/common/istio-1-14/istio-install/base?ref=v1.6-branch
+# OIDC Authservice
+#- ../common/oidc-authservice/base
+# Dex
+#- github.com/kubeflow/manifests/common/dex/overlays/istio?ref=v1.6-branch
+# KNative
+- github.com/kubeflow/manifests/common/knative/knative-serving/overlays/gateways?ref=v1.6-branch
+- github.com/kubeflow/manifests/common/knative/knative-eventing/base?ref=v1.6-branch
+- github.com/kubeflow/manifests/common/istio-1-14/cluster-local-gateway/base?ref=v1.6-branch
+# Kubeflow namespace
+- github.com/kubeflow/manifests/common/kubeflow-namespace/base?ref=v1.6-branch
+# Kubeflow Roles
+- github.com/kubeflow/manifests/common/kubeflow-roles/base?ref=v1.6-branch
+# Kubeflow Istio Resources
+- github.com/kubeflow/manifests/common/istio-1-14/kubeflow-istio-resources/base?ref=v1.6-branch
+
+
+# Kubeflow Pipelines
+- github.com/kubeflow/manifests/apps/pipeline/upstream/env/cert-manager/platform-agnostic-multi-user?ref=v1.6-branch
+# KFServing
+#- github.com/kubeflow/manifests/apps/kfserving/upstream/overlays/kubeflow?ref=v1.6-branch
+# Katib
+- github.com/kubeflow/manifests/apps/katib/upstream/installs/katib-with-kubeflow?ref=v1.6-branch
+# Central Dashboard
+#- github.com/kubeflow/manifests/apps/centraldashboard/upstream/overlays/istio?ref=v1.6-branch
+# Admission Webhook
+- github.com/kubeflow/manifests/apps/admission-webhook/upstream/overlays/cert-manager?ref=v1.6-branch
+# Notebook Controller
+#- ../apps/jupyter/jupyter-web-app/upstream/overlays/istio
+# Jupyter Web App
+#- ../apps/jupyter/notebook-controller/upstream/overlays/kubeflow
+# Profiles + KFAM
+- github.com/kubeflow/manifests/apps/profiles/upstream/overlays/kubeflow?ref=v1.6-branch
+# Volumes Web App
+#- ../apps/volumes-web-app/upstream/overlays/istio
+# Tensorboards Web App
+#-  ../apps/tensorboard/tensorboard-controller/upstream/overlays/kubeflow
+# Tensorboard Controller
+#-  ../apps/tensorboard/tensorboards-web-app/upstream/overlays/istio
+# Training Operator
+- github.com/kubeflow/manifests/apps/training-operator/upstream/overlays/kubeflow?ref=v1.6-branch
+# MPI Operator
+#- github.com/kubeflow/manifests/apps/mpi-job/upstream/overlays/kubeflow?ref=v1.6-branch
+# User namespace
+#- ../common/user-namespace/base
+
+# KServe
+- github.com/kubeflow/manifests/contrib/kserve/kserve?ref=v1.6-branch
+- github.com/kubeflow/manifests/contrib/kserve/models-web-app/overlays/kubeflow?ref=v1.6-branch
+
+#Ingress certificate
+#- ingress-certificate.yaml
+- patches/dkube-proxy.yaml
+- patches/kserve-ui.yaml
+
+patchesStrategicMerge:
+- patches/istio-proxy-service.yaml
+- patches/katib-external-mysql.yaml
+- patches/pipeline-external-mysql.yaml
+- patches/metadata-external-mysql.yaml
+- patches/pipeline.yaml
+- patches/serving.yaml
+- patches/training-operator-limits.yaml
+- patches/cache-server-mysql-secret.yaml
+- patches/mlpipeline-minio.yaml
+#- patches/dex-server.yaml
+- patches/kfam.yaml
+#- patches/workflow-ttl.yaml
+
+configMapGenerator:
+- name: kubeflow-pipelines-profile-controller-code
+  behavior: replace
+  files:
+  - patches/sync.py
+- name: kubeflow-pipelines-profile-controller-env
+  behavior: merge
+  literals:
+    - DISABLE_ISTIO_SIDECAR=true
+
+secretGenerator:
+  - name: katib-mysql-secrets
+    behavior: replace
+    envs:
+    - patches/secrets.env
+#  - name: dex-oidc-client
+#    behavior: replace
+#    envs:
+#    - patches/dex_secret_params.env
+
+images:
+  - name: gcr.io/ml-pipeline/frontend
+    newName: ocdr/ml-pipeline-ui
+  - name: docker.io/kubeflowkatib/katib-ui
+    newName: docker.io/ocdr/katib-ui
+    newtag: v0.12.0
+  - name: ghcr.io/dexidp/dex
+    newName: ocdr/dkubex_dex
+
+patches:
+- path: patches/regcred.yaml
+  target:
+    namespace: kubeflow
+    kind: ServiceAccount
+- path: patches/regcred.yaml
+  target:
+    namespace: istio-system
+    kind: ServiceAccount
+- path: patches/regcred.yaml
+  target:
+    namespace: cert-manager
+    kind: ServiceAccount
+- path: patches/regcred.yaml
+  target:
+    namespace: knative-serving
+    kind: ServiceAccount
+- path: patches/regcred.yaml
+  target:
+    namespace: knative-eventing
+    kind: ServiceAccount

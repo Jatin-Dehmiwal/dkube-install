@@ -107,7 +107,7 @@ data:
      enable_stat_watcher false
      rotate_wait 2
      tag kubernetes_jobs.*
-     format json
+     format /^(?<log>.*)$/
      read_from_head true
     </source>
 
@@ -130,7 +130,7 @@ data:
         <record>
           plpath pllauncher
           training_path jobs
-          #check for training job or pipeline  launcher 
+          #check for training job or pipeline  launcher
           jobuuid ${record.dig("kubernetes", "labels", "jobuuid") ? record.dig("kubernetes", "labels", "jobuuid") : record.dig("kubernetes", "labels", "runid") }
           #check for trail job
           studyuuid ${record.dig("kubernetes", "labels", "studyuuid")}
@@ -146,7 +146,7 @@ data:
 
           #td-replica-type and tf-replica-index are useful in Distributed job
           temp_log ${record.dig("kubernetes", "labels", "tf-replica-type")}-${record.dig("kubernetes", "labels", "tf-replica-index")}:  ${record.dig("log")}
-        
+
           #check for datajob log or training job log
           training_log ${record.dig("kubernetes", "labels", "tf-replica-type") ? record.dig("temp_log") : record.dig("log")}
 
@@ -155,9 +155,9 @@ data:
           trial_log ${record.dig("kubernetes", "labels", "jobname")}:  ${record.dig("training_log")}
 
           #pod which has studyuuid label considering as trail job
-          final_log ${record.dig("kubernetes", "labels", "studyuuid") ? record.dig("trial_log") : record.dig("training_log")} 
+          final_log ${record.dig("kubernetes", "labels", "studyuuid") ? record.dig("trial_log") : record.dig("training_log")}
 
-          #for pipeline launcher logs we are not adding extra fields 
+          #for pipeline launcher logs we are not adding extra fields
           message ${record.dig("kubernetes", "labels", "runid") ? record.dig("log") : record.dig("final_log") }
           #s3 storage path
           s3path ${record.dig("fpath")}/${record.dig("username")}/${record.dig("finalid")}/${record.dig("container")}
@@ -183,12 +183,12 @@ data:
        <format>
          @type single_value
          message_key message
-         add_newline false
+         add_newline true
        </format>
        <buffer s3path>
          @type file
          path /var/log/td-agent/jobs/${s3path}
-         timekey 10s           
+         timekey 10s
          timekey_wait 10s  
          timekey_use_utc true  
          chunk_limit_size 256m
@@ -197,8 +197,7 @@ data:
          overflow_action throw_exception
          retry_type periodic
          retry_wait 10s
-         flush_mode interval
-         flush_interval 30s
+         flush_mode immediate
          flush_at_shutdown true
        </buffer>
     </match>
@@ -213,66 +212,6 @@ metadata:
   labels:
     ksonnet.io/component: service
   name: dkube
-  namespace: dkube
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  labels:
-    ksonnet.io/component: service
-  name: dkube-proxy
-  namespace: dkube
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: Role
-metadata:
-  labels:
-    ksonnet.io/component: service
-  name: dkube-proxy
-  namespace: dkube
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - services
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  verbs:
-  - create
-  - update
-  - patch
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  verbs:
-  - get
-  - list
-  - watch
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: RoleBinding
-metadata:
-  labels:
-    ksonnet.io/component: service
-  name: dkube-proxy
-  namespace: dkube
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: dkube-proxy
-subjects:
-- kind: ServiceAccount
-  name: dkube-proxy
   namespace: dkube
 ---
 apiVersion: v1
@@ -508,14 +447,14 @@ spec:
       istio: ingressgateway
   configPatches:
   - applyTo: HTTP_FILTER
-    listener:
-      filterChain:
-        filter:
-          name: envoy.http_connection_manager
-          subFilter:
-            name: envoy.router
     match:
       context: GATEWAY
+      listener:
+        filterChain:
+          filter:
+            name: envoy.http_connection_manager
+            subFilter:
+              name: envoy.router
     patch:
       operation: INSERT_BEFORE
       value:
