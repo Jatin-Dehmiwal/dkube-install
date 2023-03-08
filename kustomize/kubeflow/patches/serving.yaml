@@ -14,4 +14,18 @@ metadata:
 data:
   registriesSkippingTagResolving: "index.docker.io"
   progressDeadline: "10m"
-
+---
+apiVersion: serving.kserve.io/v1alpha1
+kind: ClusterServingRuntime
+metadata:
+  name: kserve-torchserve
+spec:
+  containers:
+  - args:
+    - torchserve
+    - --start
+    - --model-store=/mnt/models/model-store
+    - --ts-config=/mnt/models/config/config.properties
+    - --model_name={{.Name}}
+    - --model_dir=/mnt/models
+    - --model_class_name=Net
