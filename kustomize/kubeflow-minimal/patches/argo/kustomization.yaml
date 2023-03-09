@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+bases:
+# Note, we do not explicitly separate cluster-scoped resources for cluster installation,
+# because people who deploy cluster-scoped resources should be the same as who deploys
+# namespaced resources.
+- github.com/kubeflow/manifests/apps/pipeline/upstream/third-party/argo/installs/cluster?ref=v1.6-branch
+
+configMapGenerator:
+- name: argo-envs
+  envs:
+  - params.env
+
+vars:
+- name: kfp-namespace
+  objRef:
+    kind: ConfigMap
+    apiVersion: v1
+    name: argo-envs
+  fieldRef:
+    fieldpath: data.kfp-namespace
+- name: kfp-artifact-bucket-name
+  objRef:
+    kind: ConfigMap
+    apiVersion: v1
+    name: argo-envs
+  fieldRef:
+    fieldpath: data.kfp-artifact-bucket-name
+
+namespace: kubeflow
