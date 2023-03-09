@@ -1,5 +1,44 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-bases:
-- github.com/oneconvergence/kubeflow-manifests/dkube-minimal?ref=v1.4-branch
+resources:
+# Istio
+- github.com/kubeflow/manifests/common/istio-1-14/istio-crds/base?ref=v1.6-branch
+- github.com/kubeflow/manifests/common/istio-1-14/istio-namespace/base?ref=v1.6-branch
+- github.com/kubeflow/manifests/common/istio-1-14/istio-install/base?ref=v1.6-branch
+# Dex
+#- github.com/kubeflow/manifests/common/dex/overlays/istio?ref=v1.6-branch
+# Kubeflow Roles
+- github.com/kubeflow/manifests/common/kubeflow-roles/base?ref=v1.6-branch
+# Kubeflow Istio Resources
+- github.com/kubeflow/manifests/common/istio-1-14/kubeflow-istio-resources/base?ref=v1.6-branch
+# Argo
+- patches/argo
+# Minio
+- patches/minio
+
+- patches/dkube-proxy.yaml
+
+patchesStrategicMerge:
+- patches/istio-proxy-service.yaml
+#- patches/dex-server.yaml
+
+#secretGenerator:
+#  - name: dex-oidc-client
+#    behavior: replace
+#    envs:
+#    - patches/dex_secret_params.env
+
+#images:
+#  - name: ghcr.io/dexidp/dex
+#    newName: ocdr/dkubex_dex
+
+patches:
+- path: patches/regcred.yaml
+  target:
+    namespace: kubeflow
+    kind: ServiceAccount
+- path: patches/regcred.yaml
+  target:
+    namespace: istio-system
+    kind: ServiceAccount
