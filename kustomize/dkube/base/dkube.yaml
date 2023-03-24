@@ -231,9 +231,7 @@ spec:
     spec:
       containers:
       - command:
-        - dex
-        - serve
-        - /etc/dex/cfg/config.yaml
+        - /opt/dkube/startup
         image: dkubeDexImage
         imagePullPolicy: IfNotPresent
         name: main
