@@ -3,15 +3,15 @@ kind: Kustomization
 
 resources:
 # Istio
-- github.com/kubeflow/manifests/common/istio-1-14/istio-crds/base?ref=v1.6-branch
-- github.com/kubeflow/manifests/common/istio-1-14/istio-namespace/base?ref=v1.6-branch
-- github.com/kubeflow/manifests/common/istio-1-14/istio-install/base?ref=v1.6-branch
+- github.com/kubeflow/manifests/common/istio-1-14/istio-crds/base?ref=v1.7-branch
+- github.com/kubeflow/manifests/common/istio-1-14/istio-namespace/base?ref=v1.7-branch
+- github.com/kubeflow/manifests/common/istio-1-14/istio-install/base?ref=v1.7-branch
 # Dex
-#- github.com/kubeflow/manifests/common/dex/overlays/istio?ref=v1.6-branch
+#- github.com/kubeflow/manifests/common/dex/overlays/istio?ref=v1.7-branch
 # Kubeflow Roles
-- github.com/kubeflow/manifests/common/kubeflow-roles/base?ref=v1.6-branch
+- github.com/kubeflow/manifests/common/kubeflow-roles/base?ref=v1.7-branch
 # Kubeflow Istio Resources
-- github.com/kubeflow/manifests/common/istio-1-14/kubeflow-istio-resources/base?ref=v1.6-branch
+- github.com/kubeflow/manifests/common/istio-1-14/kubeflow-istio-resources/base?ref=v1.7-branch
 # Argo
 - patches/argo
 # Minio

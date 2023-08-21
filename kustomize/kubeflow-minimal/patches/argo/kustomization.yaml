@@ -5,7 +5,7 @@ bases:
 # Note, we do not explicitly separate cluster-scoped resources for cluster installation,
 # because people who deploy cluster-scoped resources should be the same as who deploys
 # namespaced resources.
-- github.com/kubeflow/manifests/apps/pipeline/upstream/third-party/argo/installs/cluster?ref=v1.6-branch
+- github.com/kubeflow/manifests/apps/pipeline/upstream/third-party/argo/installs/cluster?ref=v1.7-branch
 
 configMapGenerator:
 - name: argo-envs
