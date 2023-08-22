@@ -29,6 +29,27 @@ spec:
     - --model_name={{.Name}}
     - --model_dir=/mnt/models
     - --model_class_name=Net
+    env:
+    - name: TS_SERVICE_ENVELOPE
+      value: '{{.Labels.serviceEnvelope}}'
+    image: pytorch/torchserve-kfs:0.7.0
+    name: kserve-container
+    resources:
+      limits:
+        cpu: "1"
+        memory: 2Gi
+      requests:
+        cpu: "1"
+        memory: 2Gi
+  protocolVersions:
+  - v1
+  - v2
+  - grpc-v1
+  supportedModelFormats:
+  - autoSelect: true
+    name: pytorch
+    version: "1"
+
 ---
 apiVersion: v1
 kind: ConfigMap
