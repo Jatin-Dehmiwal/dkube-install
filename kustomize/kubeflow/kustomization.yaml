@@ -1,62 +1,89 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+sortOptions:
+  order: legacy
+  legacySortOptions:
+    orderFirst:
+    - Namespace
+    - ResourceQuota
+    - StorageClass
+    - CustomResourceDefinition
+    - MutatingWebhookConfiguration
+    - ServiceAccount
+    - PodSecurityPolicy
+    - Role
+    - ClusterRole
+    - RoleBinding
+    - ClusterRoleBinding
+    - ConfigMap
+    - Secret
+    - Endpoints
+    - Service
+    - LimitRange
+    - PriorityClass
+    - PersistentVolume
+    - PersistentVolumeClaim
+    - Deployment
+    - StatefulSet
+    - CronJob
+    - PodDisruptionBudget
+    orderLast:
+    - ValidatingWebhookConfiguration
+
 resources:
 # Cert-Manager
 - github.com/kubeflow/manifests/common/cert-manager/cert-manager/base?ref=v1.7-branch
 - github.com/kubeflow/manifests/common/cert-manager/kubeflow-issuer/base?ref=v1.7-branch
 # Istio
-- github.com/kubeflow/manifests/common/istio-1-14/istio-crds/base?ref=v1.7-branch
-- github.com/kubeflow/manifests/common/istio-1-14/istio-namespace/base?ref=v1.7-branch
-- github.com/kubeflow/manifests/common/istio-1-14/istio-install/base?ref=v1.7-branch
+- github.com/kubeflow/manifests/common/istio-1-16/istio-crds/base?ref=v1.7-branch
+- github.com/kubeflow/manifests/common/istio-1-16/istio-namespace/base?ref=v1.7-branch
+- github.com/kubeflow/manifests/common/istio-1-16/istio-install/base?ref=v1.7-branch
 # OIDC Authservice
-#- ../common/oidc-authservice/base
+# - github.com/kubeflow/manifests/common/oidc-authservice/base?ref=v1.7-branch
 # Dex
-#- github.com/kubeflow/manifests/common/dex/overlays/istio?ref=v1.7-branch
+# - github.com/kubeflow/manifests/common/dex/overlays/istio?ref=v1.7-branch
 # KNative
 - github.com/kubeflow/manifests/common/knative/knative-serving/overlays/gateways?ref=v1.7-branch
 - github.com/kubeflow/manifests/common/knative/knative-eventing/base?ref=v1.7-branch
-- github.com/kubeflow/manifests/common/istio-1-14/cluster-local-gateway/base?ref=v1.7-branch
+- github.com/kubeflow/manifests/common/istio-1-16/cluster-local-gateway/base?ref=v1.7-branch
 # Kubeflow namespace
 - github.com/kubeflow/manifests/common/kubeflow-namespace/base?ref=v1.7-branch
 # Kubeflow Roles
 - github.com/kubeflow/manifests/common/kubeflow-roles/base?ref=v1.7-branch
 # Kubeflow Istio Resources
-- github.com/kubeflow/manifests/common/istio-1-14/kubeflow-istio-resources/base?ref=v1.7-branch
+- github.com/kubeflow/manifests/common/istio-1-16/kubeflow-istio-resources/base?ref=v1.7-branch
 
 
 # Kubeflow Pipelines
 - github.com/kubeflow/manifests/apps/pipeline/upstream/env/cert-manager/platform-agnostic-multi-user?ref=v1.7-branch
-# KFServing
-#- github.com/kubeflow/manifests/apps/kfserving/upstream/overlays/kubeflow?ref=v1.7-branch
 # Katib
 - github.com/kubeflow/manifests/apps/katib/upstream/installs/katib-with-kubeflow?ref=v1.7-branch
 # Central Dashboard
-#- github.com/kubeflow/manifests/apps/centraldashboard/upstream/overlays/istio?ref=v1.7-branch
+# - github.com/kubeflow/manifests/apps/centraldashboard/upstream/overlays/kserve?ref=v1.7-branch
 # Admission Webhook
 - github.com/kubeflow/manifests/apps/admission-webhook/upstream/overlays/cert-manager?ref=v1.7-branch
-# Notebook Controller
-#- ../apps/jupyter/jupyter-web-app/upstream/overlays/istio
 # Jupyter Web App
-#- ../apps/jupyter/notebook-controller/upstream/overlays/kubeflow
+# - github.com/kubeflow/manifests/apps/jupyter/jupyter-web-app/upstream/overlays/istio?ref=v1.7-branch
+# Notebook Controller
+# - github.com/kubeflow/manifests/apps/jupyter/notebook-controller/upstream/overlays/kubeflow?ref=v1.7-branch
 # Profiles + KFAM
 - github.com/kubeflow/manifests/apps/profiles/upstream/overlays/kubeflow?ref=v1.7-branch
 # Volumes Web App
-#- ../apps/volumes-web-app/upstream/overlays/istio
-# Tensorboards Web App
-#-  ../apps/tensorboard/tensorboard-controller/upstream/overlays/kubeflow
-# Tensorboard Controller
-#-  ../apps/tensorboard/tensorboards-web-app/upstream/overlays/istio
+# - github.com/kubeflow/manifests/apps/volumes-web-app/upstream/overlays/istio?ref=v1.7-branch
+# Tensorboards Controller
+# -  github.com/kubeflow/manifests/apps/tensorboard/tensorboard-controller/upstream/overlays/kubeflow?ref=v1.7-branch
+# Tensorboard Web App
+# -  github.com/kubeflow/manifests/apps/tensorboard/tensorboards-web-app/upstream/overlays/istio?ref=v1.7-branch
 # Training Operator
 - github.com/kubeflow/manifests/apps/training-operator/upstream/overlays/kubeflow?ref=v1.7-branch
-# MPI Operator
-#- github.com/kubeflow/manifests/apps/mpi-job/upstream/overlays/kubeflow?ref=v1.7-branch
 # User namespace
-#- ../common/user-namespace/base
+# - github.com/kubeflow/manifests/common/user-namespace/base?ref=v1.7-branch
 
 # KServe
 - github.com/kubeflow/manifests/contrib/kserve/kserve?ref=v1.7-branch
 - github.com/kubeflow/manifests/contrib/kserve/models-web-app/overlays/kubeflow?ref=v1.7-branch
+
 
 #Ingress certificate
 #- ingress-certificate.yaml
